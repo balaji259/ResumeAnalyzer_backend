@@ -189,42 +189,45 @@ router.get('/stats', async (req, res) => {
 });
 
 
+
 router.post("/taketest", upload.single("resume"), authMiddleware, async (req, res) => {
-  console.log("Request received at /resume/jobMatcher"); // Debugging
-try {
-  const { userId } = req.user; // Extract from token middleware
-  console.log("userId",userId);
-  const resumeFile = req.file;
+  console.log("Request received at /resume/taketest"); // Debugging
+  try {
+    const { userId } = req.user; // Extract from token middleware
+    console.log("userId", userId);
+    const resumeFile = req.file;
 
+    if (!resumeFile) return res.status(400).json({ error: "No file uploaded" });
 
+    // Extract mimetype and file buffer
+    const mimeType = resumeFile.mimetype;  // Example: "application/pdf"
+    const fileBuffer = resumeFile.buffer;  // File data in memory
+    console.log(mimeType, fileBuffer);
+    
+    // Get question counts from request or use defaults
+    const mcqCount = parseInt(req.body.mcqCount) || 10;
+    const descriptiveCount = parseInt(req.body.descriptiveCount) || 3;
+    const softSkillsCount = parseInt(req.body.softSkillsCount) || 2;
+    
+    console.log("Question counts:", { mcqCount, descriptiveCount, softSkillsCount });
 
-  if (!resumeFile) return res.status(400).json({ error: "No file uploaded" });
+    // Analyze Resume with custom counts
+    const result = await taketest(fileBuffer, mimeType, mcqCount, descriptiveCount, softSkillsCount);
 
-  // Extract mimetype and file buffer
-  const mimeType = resumeFile.mimetype;  // Example: "application/pdf"
-  const fileBuffer = resumeFile.buffer;  // File data in memory
-  console.log(mimeType, fileBuffer);
-  // Analyze Resume
-
-  const result = await taketest(fileBuffer, mimeType);
-
-  console.log("Type of result:", typeof result);
-  console.log("Type of result.analysis:", typeof result.questions);
-  // Save to DB
-
-
-  res.json({
-    message: "Test generated successfully",
-    questions: result.questions,
-    // resumeText: result.extractedText,
-  });
-  
-  
-} catch (error) {
-  res.status(500).json({ error: "Error matching the jobs for the given resume" });
-}
+    console.log("Type of result:", typeof result);
+    console.log("Type of result.questions:", typeof result.questions);
+    
+    res.json({
+      message: "Test generated successfully",
+      questions: result.questions,
+      // resumeText: result.extractedText,
+    });
+    
+  } catch (error) {
+    console.error("Error generating test:", error);
+    res.status(500).json({ error: "Error creating test from the given resume" });
+  }
 });
-
 
 router.post("/submit-answers", async (req, res) => {
   try {

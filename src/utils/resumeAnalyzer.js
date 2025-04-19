@@ -152,19 +152,21 @@ async function jobMatcher(fileBuffer, mimeType, jobRole) {
   }
 }
 
-// Function to analyze resume and generate interview-style questions
-async function taketest(fileBuffer, mimeType) {
-  try {
 
+
+// Function to analyze resume and generate interview-style questions
+async function taketest(fileBuffer, mimeType, mcqCount = 10, descriptiveCount = 3, softSkillsCount = 2) {
+  try {
     console.log("inside the utils function!");
+    console.log(mcqCount);
+    console.log(descriptiveCount);
+    console.log(softSkillsCount);
 
     // 1. Extract text from the uploaded resume
     const resumeText = await extractTextFromResume(fileBuffer, mimeType);
     console.log("Extracted Resume Text:", resumeText);
 
-
-
-    // 2. Prepare the prompt for question generation
+    // 2. Prepare the prompt for question generation with custom counts
     const prompt = `
 You are a senior technical interviewer and HR expert.
 
@@ -175,11 +177,15 @@ Resume:
 
 Instructions:
 1. Identify top technical skills (like programming languages, tools, frameworks, etc.) and prepare:
-   - 3 MCQs to test knowledge of those skills.
-   - 2 descriptive questions (like explain a concept, solve a small problem, etc.)
+   - ${mcqCount} MCQs to test knowledge of those skills.
+   - ${descriptiveCount} descriptive questions (like explain a concept, solve a small problem, etc.)
 
 2. Identify soft skills or behavioral cues (like communication, teamwork, leadership, etc.) and prepare:
-   - 2 situational questions to test soft skills.
+   - ${softSkillsCount} situational questions to test soft skills.
+   - Ensure these questions are personalized based on the resume's content and **not generic or repetitive** like "Tell us about a conflict."
+   - Use context-specific phrasing such as "Describe how you handled presenting your project at XYZ," or "How did you collaborate with your team during ABC project?"
+   - Ask them in a way that meaningfully evaluates the candidate's soft skills, problem-solving approach, and interpersonal behavior. 
+
 
 Format the result as JSON like this:
 
@@ -216,7 +222,6 @@ Only return valid JSON inside code block. No extra text.
 
     await sleep(1000);
 
-
     // 4. Generate content from Gemini
     const result = await model.generateContent([prompt]);
     const responseText = result.response.text();
@@ -230,7 +235,6 @@ Only return valid JSON inside code block. No extra text.
     } catch (err) {
       console.error("Error parsing questions JSON:", err);
     }
-
 
     console.log('questions:-')
     console.log(questions);

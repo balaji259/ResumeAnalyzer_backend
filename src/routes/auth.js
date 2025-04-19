@@ -52,6 +52,7 @@ authRouter.post("/signup", async (req, res) => {
         if(!user){
             throw new Error("Invalid credentials");
         }
+
         const isPasswordMatched = await bcrypt.compare(password, user.password);
         if(!isPasswordMatched){
             throw new Error("Invalid credentials");
@@ -95,6 +96,7 @@ authRouter.post("/signup", async (req, res) => {
           expiresIn: "1d",
         });
 
+        console.log(user);
         console.log(token);
 
       res.cookie("token", token,{
@@ -103,7 +105,6 @@ authRouter.post("/signup", async (req, res) => {
 
       res.send(user);
 
-        
     } catch (error) {
         console.error('Error during login:', error);
         console.log(error);
