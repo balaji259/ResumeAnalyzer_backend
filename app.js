@@ -14,9 +14,20 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: err.message || "Internal Server Error" });
 });
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://resumehubrbt.netlify.app"
+];
+
 app.use(
   cors({
-    origin: "http://localhost:5173", // Allow frontend origin
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    }, // Allow frontend origin
     credentials: true, // Allow cookies and authentication headers
     methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS", "PUT"], // Explicitly allow PATCH
     allowedHeaders: ["Content-Type", "Authorization"], // Ensure content-type is allowed
