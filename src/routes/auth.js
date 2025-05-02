@@ -65,7 +65,7 @@ authRouter.post("/signup", async (req, res) => {
             expires: new Date(Date.now() + 8 * 3600000),
         })
 
-        res.send(user);
+        res.send({user,token});
 
     }catch(err){
         res.status(400).send("Error: "+err.message);
@@ -104,7 +104,7 @@ authRouter.post("/signup", async (req, res) => {
           expires: new Date(Date.now() + 8 * 3600000),
       })
 
-      res.send(user);
+      res.send({user,token});
 
     } catch (error) {
         console.error('Error during login:', error);
@@ -112,7 +112,6 @@ authRouter.post("/signup", async (req, res) => {
         res.status(500).json({ message: 'Server error.' });
     }
 });
-
   
   authRouter.get("/logout", async (req, res) => {
     res.cookie("token", null,{
