@@ -61,7 +61,7 @@ router.post("/analyze", upload.single("resume"), authMiddleware, async (req, res
       grammarIssues: result.analysis.grammarIssues,
       atsFriendly: result.analysis.atsFriendly,
   });
-  await newResume.save(); // Save to Resume collection
+  // await newResume.save(); // Save to Resume collection
     console.log("Resume saved!");
   // Update user's resumes array with new Resume ObjectId
   const user = await User.findByIdAndUpdate(
