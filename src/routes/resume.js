@@ -78,8 +78,14 @@ router.post("/analyze", upload.single("resume"), authMiddleware, async (req, res
     }
 
 
-  await newResume.save(); // Save to Resume collection
-    console.log("Resume saved!");
+  try {
+      await newResume.save();
+      console.log("Resume saved!");
+    } catch (err) {
+      console.error("❌ Error saving to MongoDB:");
+      console.error(err.name, err.message);
+      console.error(err.stack);
+    }
   // Update user's resumes array with new Resume ObjectId
   const user = await User.findByIdAndUpdate(
       userId,
