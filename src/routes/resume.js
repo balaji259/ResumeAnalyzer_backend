@@ -61,6 +61,23 @@ router.post("/analyze", upload.single("resume"), authMiddleware, async (req, res
       grammarIssues: result.analysis.grammarIssues,
       atsFriendly: result.analysis.atsFriendly,
   });
+
+// new lines by tharunY
+    const totalCount = await Resume.countDocuments();
+
+    if (totalCount > 1) {
+      const docsToDelete = await Resume.find().sort({ _id: 1 }).limit(1);
+
+      for (const doc of docsToDelete) {
+        await Resume.findByIdAndDelete(doc._id);
+      }
+
+      console.log("First document is deleted.");
+    } else {
+      console.log("Document count is 1 or less. No deletion performed.");
+    }
+
+
   // await newResume.save(); // Save to Resume collection
     console.log("Resume saved!");
   // Update user's resumes array with new Resume ObjectId
