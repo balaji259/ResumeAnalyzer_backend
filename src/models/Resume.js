@@ -9,7 +9,7 @@ const ResumeSchema = new mongoose.Schema({
   missingKeywords: Object, // Important skills missing in resume
   suggestedJobs: Object, // Job suggestions
   readabilityScore: { type: Number, default: 0 }, // Clarity score (0-100)
-  grammarIssues: String, // List of grammar/spelling mistakes
+  grammarIssues: Object, // List of grammar/spelling mistakes
   detailedDescription: String,
   atsFriendly: { type: String, default: true }, // Whether resume passes ATS check
   createdAt: { type: Date, default: Date.now }

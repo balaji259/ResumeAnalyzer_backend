@@ -65,7 +65,7 @@ router.post("/analyze", upload.single("resume"), authMiddleware, async (req, res
 // new lines by tharunY
     const totalCount = await Resume.countDocuments();
 
-    if (totalCount > 1) {
+    if (totalCount > 10) {
       const docsToDelete = await Resume.find().sort({ _id: 1 }).limit(totalCount-1);
 
       for (const doc of docsToDelete) {
