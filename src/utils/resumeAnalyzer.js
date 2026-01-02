@@ -24,7 +24,7 @@ async function analyzeResume(fileBuffer, mimeType, jobRole) {
   try {
     // Extract text from the uploaded resume
     const resumeText = await extractTextFromResume(fileBuffer, mimeType);
-    console.log("Extracted Resume Text:", resumeText);
+    // console.log("Extracted Resume Text:", resumeText);
 
     // Define a structured prompt
     const prompt = `
@@ -50,9 +50,11 @@ async function analyzeResume(fileBuffer, mimeType, jobRole) {
     `;
 
     // Dynamically import Google Generative AI
-    const { GoogleGenerativeAI } = await import("@google/generative-ai");
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
+    // const { GoogleGenerativeAI } = await import("@google/generative-ai");
+    // const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    // const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
+
+    const { model } = require("./geminiClient");
 
     const result = await model.generateContent([prompt]);
     const analysis = result.response.text();
@@ -100,7 +102,7 @@ async function jobMatcher(fileBuffer, mimeType, jobRole) {
   try {
     // Extract text from the uploaded resume
     const resumeText = await extractTextFromResume(fileBuffer, mimeType);
-    console.log("Extracted Resume Text:", resumeText);
+    // console.log("Extracted Resume Text:", resumeText);
 
     // Define a structured prompt
     const prompt = `
@@ -118,10 +120,7 @@ async function jobMatcher(fileBuffer, mimeType, jobRole) {
       """${resumeText}"""
     `;
 
-    // Dynamically import Google Generative AI
-    const { GoogleGenerativeAI } = await import("@google/generative-ai");
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
+    const { model } = require("./geminiClient");
 
     const result = await model.generateContent([prompt]);
     const analysis = result.response.text();
@@ -135,7 +134,7 @@ async function jobMatcher(fileBuffer, mimeType, jobRole) {
         // Extract JSON content from the duplicate response
         const parsedData = JSON.parse(duplicateResponse);
     
-        console.log(parsedData);
+        // console.log(parsedData);
         final_analysis = parsedData;
     } catch (error) {
         console.error("Error parsing the analysis report:", error);
@@ -158,13 +157,10 @@ async function jobMatcher(fileBuffer, mimeType, jobRole) {
 async function taketest(fileBuffer, mimeType, mcqCount = 10, descriptiveCount = 3, softSkillsCount = 2) {
   try {
     console.log("inside the utils function!");
-    console.log(mcqCount);
-    console.log(descriptiveCount);
-    console.log(softSkillsCount);
 
     // 1. Extract text from the uploaded resume
     const resumeText = await extractTextFromResume(fileBuffer, mimeType);
-    console.log("Extracted Resume Text:", resumeText);
+    // console.log("Extracted Resume Text:", resumeText);
 
     // 2. Prepare the prompt for question generation with custom counts
     const prompt = `
@@ -213,10 +209,8 @@ Format the result as JSON like this:
 Only return valid JSON inside code block. No extra text.
 `;
 
-    // 3. Import Google Generative AI & get model
-    const { GoogleGenerativeAI } = await import("@google/generative-ai");
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
+
+    const { model } = require("./geminiClient");
 
     const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
 
@@ -229,15 +223,23 @@ Only return valid JSON inside code block. No extra text.
     // 5. Extract JSON from Gemini response
     let questions = [];
     try {
-      const jsonOnly = responseText.replace(/```json|```/g, "").trim();
+      // const jsonOnly = responseText.replace(/```json|```/g, "").trim();
+
+      let jsonOnly = responseText
+        .replace(/```json\n?/g, "")
+        .replace(/```\n?/g, "")
+        .trim();
+      
+      // Additional cleanup for common issues
+      jsonOnly = jsonOnly
+        .replace(/\n\s*\n/g, '\n') // Remove extra newlines
+        .replace(/[\u0000-\u001F]+/g, ''); // Remove control characters
+
       questions = JSON.parse(jsonOnly);
       console.log("Generated Questions:", questions);
     } catch (err) {
       console.error("Error parsing questions JSON:", err);
     }
-
-    console.log('questions:-')
-    console.log(questions);
 
     return {
       // extractedText: resumeText,
@@ -256,10 +258,7 @@ async function evaluateAnswers(mcqAnswers, descriptiveAnswers, softSkillAnswers)
   let mcqScore = 0;
   const mcqDetails = [];
 
-  console.log("evaluatre anlyser");
-  console.log(mcqAnswers);
-  console.log(descriptiveAnswers);
-  console.log(softSkillAnswers);
+  console.log("evaluating anlyser");
 
   // ✅ Evaluate MCQs locally
   mcqAnswers.forEach(({ question, selectedAnswer, correctAnswer }) => {
@@ -285,11 +284,6 @@ async function evaluateAnswers(mcqAnswers, descriptiveAnswers, softSkillAnswers)
 
 
   console.log('evaluate');
-  console.log(descriptiveFeedback)
-  console.log(softSkillFeedback);
-  console.log(mentorAdvice);
-
-
 
   return {
     sectionScores: {
@@ -341,7 +335,7 @@ async function getGeminiFeedback(answers, type) {
     const cleanText = rawText.replace(/```json|```/g, "").trim();
     
     
-    console.log(`cleanText: ${cleanText}`);
+    // console.log(`cleanText: ${cleanText}`);
 
     return JSON.parse(cleanText);
   } catch (error) {
@@ -399,9 +393,6 @@ async function getMentorLevelFeedback(descriptiveAnswers, softSkillAnswers) {
 
   try {
     const cleaned = rawText.replace(/```json|```/g, "").trim();
-    
-    console.log('cleaned');
-    console.log(cleaned);
     
     return JSON.parse(cleaned);
   } catch (error) {
