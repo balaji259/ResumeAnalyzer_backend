@@ -322,7 +322,7 @@ async function getGeminiFeedback(answers, type) {
     // 3. Import Google Generative AI & get model
     const { GoogleGenerativeAI } = await import("@google/generative-ai");
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
+    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
 
     await sleep(1000); // ⏳ Wait 1s before calling Gemini to avoid rate limit
@@ -383,7 +383,7 @@ async function getMentorLevelFeedback(descriptiveAnswers, softSkillAnswers) {
     // 3. Import Google Generative AI & get model
     const { GoogleGenerativeAI } = await import("@google/generative-ai");
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
+    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
     await sleep(1000); // ⏳ Wait 1s before calling Gemini to avoid rate limit
 
